@@ -8,6 +8,8 @@ public class CharacterController2D : MonoBehaviour
     Rigidbody2D rigidbody2d;
     [SerializeField] float speed = 2f;
     Vector2 motionVector;
+    public Vector2 lastMotionVector;
+    public bool moving;
 
     Animator animator;
 
@@ -21,13 +23,29 @@ public class CharacterController2D : MonoBehaviour
     // every time the screen draws a new frame, which can vary depending on the frame rate of the game
     private void Update()
     {   
+        float horizontal = Input.GetAxisRaw("Horizontal");
+        float vertical = Input.GetAxisRaw("Vertical");
+
         //handle movement of character
         motionVector = new Vector2(
-            Input.GetAxisRaw("Horizontal"),
-            Input.GetAxisRaw("Vertical")
+            horizontal,
+            vertical
             );
-        animator.SetFloat("horizontal",Input.GetAxisRaw("Horizontal"));
-        animator.SetFloat("vertical", Input.GetAxisRaw("Vertical"));
+        animator.SetFloat("horizontal", horizontal);
+        animator.SetFloat("vertical", vertical);
+
+        moving = horizontal != 0 || vertical != 0;
+        animator.SetBool("moving", moving);
+
+        if (moving) 
+        {
+            lastMotionVector = new Vector2(
+                horizontal,
+                vertical
+            ).normalized;
+            animator.SetFloat("lastHorizontal" , horizontal);
+            animator.SetFloat("lastVertical", vertical);
+        }
 
         //using Update() to adjust physics calculations can lead to inconsistences in gameplay
         //due to varying frame rate across different devices
